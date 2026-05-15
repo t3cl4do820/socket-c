@@ -1,6 +1,6 @@
-client=client/client_comments.c
+client=client/client.c
 client_bin=client
-server=server/server_comments.c
+server=server/server.c
 server_bin=server
 dict_outPut=build
 
