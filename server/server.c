@@ -1,53 +1,33 @@
-// if u have any problem, just do: man <lib or binary>
+#include "../include/socketutils.h"
 #include <stdio.h>
-#include <sys/poll.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <arpa/inet.h>
-#include <unistd.h>
+
+#define PORT 8080 
 
 int main(void) {
 
-	int socketfd =  socket(AF_INET, SOCK_STREAM, 0);
-	
-	struct sockaddr_in addres = {
-		.sin_family = AF_INET,
-		.sin_port = htons(8000),
-		.sin_addr = 0 // for local conection
-	};
+	int serverSocketFD = createTCPIpv4Socket();
 
-	bind(socketfd, (struct sockaddr *)&addres, sizeof(addres));
-	listen(socketfd, 5);
+	char* ip = "127.0.0.1";
 
-	socklen_t size = sizeof(addres);
+	struct sockaddr_in* serverAddress = createIPv4Address(ip, PORT);
 
-	int clientfd = accept(socketfd, (struct sockaddr *)&addres, &size);
+	int result = bind(serverSocketFD, (struct sockaddr *)serverAddress, sizeof(*serverAddress));
 
-	if (clientfd == -1) {
-		printf("Not client connected! \n");
-		return -1;
+	if (result == 0) {
+		printf("socket was bound successfully \n");
 	}
-		
-	struct pollfd fds[2] = {
-		{0, POLLIN, 0},
-		{clientfd, POLLIN, 0}
-	};
 
-	for (;;) {
+	int listenResult = listen(serverSocketFD, 2);
 
-		poll(fds, 2, 50000);
+	struct sockaddr_in clientAddress;
+	socklen_t clientAddressSize = sizeof(struct sockaddr_in);
+	int clientSocketFD = accept(serverSocketFD, (struct sockaddr *)&clientAddress, &clientAddressSize);
 
-		char buffer[257];
+	char buffer[1024];
+	recv(clientSocketFD, buffer, 1024, 0);
 
-		if (fds[0].revents & POLLIN) {
-			read(0, buffer, 255);
-			send(clientfd, buffer, 255, 0);
-		} else if (fds[1].revents & POLLIN) {
-			recv(clientfd, buffer, 255, 0);
-			printf("%s \n", buffer);
-		}
-	}	
+	printf("Response was: %s\n", buffer);
 
 	return 0;
 }

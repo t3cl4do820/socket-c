@@ -1,46 +1,30 @@
-#include <netinet/in.h>
+#include "../include/socketutils.h"
 #include <stdio.h>
-#include <sys/poll.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <poll.h>
-#include <unistd.h>
+#include <string.h>
+
+#define PORT 8080
 
 int main(void) {
+	int socketfd = createTCPIpv4Socket();
 	
-	int socketfd = socket(AF_INET, SOCK_STREAM, 0);	
-	
-	struct sockaddr_in address = {
-		.sin_family = AF_INET,
-		.sin_port = htons(8000),
-		.sin_addr = 0 // localhost
-	};
+	char* ip = "127.0.0.1";
 
-	if (connect(socketfd, (struct sockaddr *)&address, sizeof(address)) == -1) {
-		printf("falha na conexao! \n");
-		return -1;
+	struct sockaddr_in* address = createIPv4Address(ip, PORT);
+
+	int result = connect(socketfd, (struct sockaddr *)address, sizeof(*address));
+
+	if (result == 0) {
+		printf("connection was successful \n");
 	}
 
-	struct pollfd fds[2] = {
-		{0, POLLIN, 0},
-		{socketfd, POLLIN, 0}
-	};
+	char* message;
+	message = "GET \\ HTTP/1.1\r\nHost:google.com\r\n\r\n";
+	send(socketfd, message, strlen(message), 0);
+
+	char buffer[1024];
+	recv(socketfd, buffer, 1024, 0);
+
+	printf("Response was: %s\n", buffer);
 	
-	for (;;) {
-		poll(fds, 2, 50000);
-		
-		if (fds[0].revents & POLLIN) {
-			char buffer[256];
-			read(0, buffer, 255);
-			send(socketfd, buffer, 255, 0);
-		}
-
-		if (fds[1].revents & POLLIN) {	
-			char buffer[256];
-			recv(socketfd, buffer, 255, 0);
-			printf("%s\n", buffer);
-		}
-	}
-
 	return 0;
 }

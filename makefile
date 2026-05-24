@@ -5,7 +5,7 @@ server_bin=server
 dict_outPut=build
 
 server_c:
-	gcc $(server) -o $(dict_outPut)/$(server_bin) && ./$(dict_outPut)/$(server_bin)
+	gcc $(server) include/socketutils.c -I../include -o $(dict_outPut)/$(server_bin) && ./$(dict_outPut)/$(server_bin)
 
 client_c:
-	gcc $(client) -o$(dict_outPut)/$(client_bin) && ./$(dict_outPut)/$(client_bin)
+	gcc $(client) include/socketutils.c -I../include -o $(dict_outPut)/$(client_bin) && ./$(dict_outPut)/$(client_bin)
