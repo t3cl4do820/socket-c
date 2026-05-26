@@ -1,6 +1,7 @@
 #include "../include/socketutils.h"
 #include <stdio.h>
 #include <sys/socket.h>
+#include <string.h>
 
 #define PORT 8080 
 

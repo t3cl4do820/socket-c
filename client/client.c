@@ -11,9 +11,9 @@ int main(void) {
 
 	struct sockaddr_in* address = createIPv4Address(ip, PORT);
 
-	int result = connect(socketfd, (struct sockaddr *)address, sizeof(*address));
+	int connectStatus = connect(socketfd, (struct sockaddr *)address, sizeof(*address));
 
-	if (result == 0) {
+	if (connectStatus == 0) {
 		printf("connection was successful \n");
 	}
 
