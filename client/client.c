@@ -1,6 +1,10 @@
 #include "../include/socketutils.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define PORT 8080
 
@@ -17,14 +21,26 @@ int main(void) {
 		printf("connection was successful \n");
 	}
 
-	char* message;
-	message = "GET \\ HTTP/1.1\r\nHost:google.com\r\n\r\n";
-	send(socketfd, message, strlen(message), 0);
+	char* line = NULL;
+	size_t lineSize = 0; // initial value
 
-	char buffer[1024];
-	recv(socketfd, buffer, 1024, 0);
+	printf("commands: exit -> to exit\n");
+	printf("write your message: \n");
+	while (1) {	
+		ssize_t charCount = getline(&line, &lineSize, stdin);
 
-	printf("Response was: %s\n", buffer);
-	
+		if (charCount > 0) {
+			if (strcmp(line, "exit\n") == 0) {
+				break;
+			}
+
+			ssize_t amountWasSend = send(socketfd, line, charCount, 0);
+
+		}
+
+	}
+
+	close(socketfd);
+
 	return 0;
 }
